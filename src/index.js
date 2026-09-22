@@ -6,6 +6,14 @@ const fs = require('fs');
 const { resolve } = require('path');
 const fg = require('fast-glob');
 
+function getErrorMessage(err) {
+  if (err && typeof err.message === 'string' && err.message) {
+    return err.message;
+  }
+
+  return String(err);
+}
+
 (async () => {
   try {
     // OSS 实例化
@@ -28,7 +36,7 @@ const fg = require('fast-glob');
     // 上传资源
     const assets = core.getInput('assets', { required: true })
 
-    assets.split('\n').forEach(async rule => {
+    await Promise.all(assets.split('\n').map(async rule => {
       const [src, dst] = rule.split(':')
 
       const files = fg.sync([src], { dot: false, onlyFiles: true })
@@ -46,16 +54,14 @@ const fg = require('fast-glob');
             const filename = file.replace(base, '')
             return oss.put(`${dst}${filename}`, resolve(file), {
               timeout: 1000 * Number(timeout)
-            }).catch(err => {
-              core.setFailed(err && err.message)
             })
           })
         )
         core.setOutput('url', res.map(r => r.url).join(','))
       }
-    })
+    }))
 
   } catch (err) {
-    core.setFailed(err.message)
+    core.setFailed(getErrorMessage(err))
   }
 })()
