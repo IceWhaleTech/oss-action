@@ -20,6 +20,14 @@ inputs:
   timeout:
     required: false
     default: 600
+  show-progress:
+    description: 'Output upload progress'
+    required: false
+    default: false
+  secure:
+    description: 'Use HTTPS for OSS requests'
+    required: false
+    default: true
 outputs:
   url:
     description: oss url

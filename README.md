@@ -12,6 +12,8 @@
 - `bucket`: Bucket 名称
 - `assets`: 上传的资源。每行一条规则，格式：`源路径:目标路径`
 - `timeout`: 超时时间（可选），默认 600，单位：秒
+- `show-progress`: 是否输出上传进度（可选），默认 `false`
+- `secure`: 是否使用 HTTPS（可选），默认 `true`；设置为 `false` 时使用 HTTP
 
 ## Outputs
 
@@ -28,6 +30,7 @@
     key-secret: ${{ secrets.OSS_KEY_SECRET }}
     region: oss-cn-shenzhen
     bucket: tvrcgo
+    show-progress: true
     assets: |
       a/**:/remote-a/
       b/**:/remote-b/
