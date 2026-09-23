@@ -32,5 +32,5 @@ outputs:
   url:
     description: oss url
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'lib/index.js'
