@@ -34,10 +34,11 @@ function getErrorMessage(err) {
 
     const oss = new OSS(opts)
     const showProgress = core.getBooleanInput('show-progress')
+    const timeout = 1000 * Number(core.getInput('timeout') || 600)
 
-    const upload = async (dst, file, options = {}) => {
+    const upload = async (dst, file) => {
       if (!showProgress) {
-        return oss.put(dst, resolve(file), options)
+        return oss.put(dst, resolve(file), { timeout })
       }
 
       let lastPercentage = -1
@@ -50,7 +51,7 @@ function getErrorMessage(err) {
       }
 
       const res = await oss.multipartUpload(dst, resolve(file), {
-        ...options,
+        timeout,
         progress: reportProgress
       })
       reportProgress(1)
@@ -75,14 +76,11 @@ function getErrorMessage(err) {
         core.setOutput('url', res.url)
       } else if (files.length && /\/$/.test(dst)) {
         // 目录
-        const timeout = core.getInput('timeout')
         const res = await Promise.all(
           files.map(async file => {
             const base = src.replace(/\*+$/g, '')
             const filename = file.replace(base, '')
-            return upload(`${dst}${filename}`, file, {
-              timeout: 1000 * Number(timeout)
-            })
+            return upload(`${dst}${filename}`, file)
           })
         )
         core.setOutput('url', res.map(r => r.url).join(','))
